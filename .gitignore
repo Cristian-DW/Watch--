@@ -1,0 +1,9 @@
+node_modules/
+gen/
+default-*.json
+*.sqlite
+*.db
+.DS_Store
+_out/
+dist/
+mta_archives/
