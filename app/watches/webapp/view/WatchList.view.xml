@@ -1,0 +1,73 @@
+<mvc:View
+  controllerName="watch.watches.controller.WatchList"
+  xmlns:mvc="sap.ui.core.mvc"
+  xmlns="sap.m">
+
+  <Page
+    id="watchListPage"
+    title="WATCH — Monitors"
+    showHeader="true">
+
+    <headerContent>
+      <Button
+        id="btnCreate"
+        text="Nuevo Watch"
+        type="Emphasized"
+        icon="sap-icon://add"
+        press="onCreateWatch" />
+    </headerContent>
+
+    <content>
+      <Table
+        id="watchesTable"
+        growing="true"
+        growingThreshold="20"
+        items="{
+          path: '/Watches',
+          sorter: { path: 'createdAt', descending: true }
+        }">
+
+        <headerToolbar>
+          <OverflowToolbar>
+            <Title text="Watches" level="H2" />
+            <ToolbarSpacer />
+            <SearchField
+              id="searchField"
+              placeholder="Buscar por nombre..."
+              liveChange="onSearch"
+              width="300px" />
+          </OverflowToolbar>
+        </headerToolbar>
+
+        <columns>
+          <Column><Text text="Nombre" /></Column>
+          <Column><Text text="URL" /></Column>
+          <Column><Text text="Tipo" /></Column>
+          <Column><Text text="Frecuencia" /></Column>
+          <Column><Text text="Estado" /></Column>
+          <Column><Text text="Creado" /></Column>
+        </columns>
+
+        <items>
+          <ColumnListItem type="Active" press="onWatchPress">
+            <cells>
+              <Text text="{name}" />
+              <Text text="{url}" />
+              <ObjectStatus
+                text="{type}"
+                state="Information" />
+              <Text text="{frequency}" />
+              <ObjectStatus
+                text="{status}"
+                state="{= ${status} === 'ACTIVE' ? 'Success' : ${status} === 'PAUSED' ? 'Warning' : ${status} === 'TRIGGERED' ? 'Error' : 'None' }" />
+              <Text text="{path: 'createdAt', type: 'sap.ui.model.type.DateTime', formatOptions: { style: 'medium' }}" />
+            </cells>
+          </ColumnListItem>
+        </items>
+
+      </Table>
+    </content>
+
+  </Page>
+
+</mvc:View>
