@@ -1,9 +1,26 @@
+# Dependencies
 node_modules/
+
+# CDS build output
 gen/
+
+# Environment / secrets
+.env
+.env.*
 default-*.json
+
+# Database files (local dev)
 *.sqlite
 *.db
+
+# Test coverage
+coverage/
+
+# OS artifacts
 .DS_Store
+__MACOSX/
+
+# Build output
 _out/
 dist/
 mta_archives/
