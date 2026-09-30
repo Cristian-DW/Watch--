@@ -22,6 +22,8 @@
         id="watchesTable"
         growing="true"
         growingThreshold="20"
+        mode="Delete"
+        delete="onDeleteWatch"
         items="{
           path: '/Watches',
           sorter: { path: 'createdAt', descending: true }

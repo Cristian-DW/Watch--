@@ -1,0 +1,67 @@
+<core:FragmentDefinition
+  xmlns="sap.m"
+  xmlns:core="sap.ui.core"
+  xmlns:form="sap.ui.layout.form">
+
+  <Dialog
+    id="createWatchDialog"
+    title="Nuevo Watch"
+    contentWidth="480px"
+    type="Message">
+
+    <content>
+      <form:SimpleForm
+        id="createWatchForm"
+        editable="true"
+        layout="ResponsiveGridLayout"
+        labelSpanXL="4" labelSpanL="4" labelSpanM="4" labelSpanS="12"
+        emptySpanXL="0" emptySpanL="0" emptySpanM="0" emptySpanS="0"
+        columnsXL="1" columnsL="1" columnsM="1">
+
+        <form:content>
+          <Label text="Nombre" required="true" />
+          <Input id="inputName" placeholder="Ej. Monitor de precios Amazon" />
+
+          <Label text="URL" required="true" />
+          <Input id="inputUrl" type="Url" placeholder="https://www.ejemplo.com/producto" />
+
+          <Label text="Tipo" />
+          <Select id="selectType" selectedKey="PRICE">
+            <core:Item key="PRICE"   text="Precio" />
+            <core:Item key="STOCK"   text="Stock" />
+            <core:Item key="CONTENT" text="Contenido" />
+            <core:Item key="CUSTOM"  text="Custom" />
+          </Select>
+
+          <Label text="Condición" />
+          <Input id="inputCondition" placeholder="Ej. price < 500" />
+
+          <Label text="Frecuencia" />
+          <Select id="selectFrequency" selectedKey="DAILY">
+            <core:Item key="HOURLY" text="Cada hora" />
+            <core:Item key="DAILY"  text="Diario" />
+            <core:Item key="WEEKLY" text="Semanal" />
+          </Select>
+        </form:content>
+
+      </form:SimpleForm>
+    </content>
+
+    <beginButton>
+      <Button
+        id="btnDialogCreate"
+        text="Crear"
+        type="Emphasized"
+        press=".onDialogCreatePress" />
+    </beginButton>
+
+    <endButton>
+      <Button
+        id="btnDialogCancel"
+        text="Cancelar"
+        press=".onDialogCancelPress" />
+    </endButton>
+
+  </Dialog>
+
+</core:FragmentDefinition>
