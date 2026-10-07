@@ -1,73 +1,190 @@
 <mvc:View
   controllerName="watch.watches.controller.WatchList"
   xmlns:mvc="sap.ui.core.mvc"
-  xmlns="sap.m">
+  xmlns:core="sap.ui.core"
+  xmlns="sap.m"
+  core:require="{ formatter: 'watch/watches/model/formatter' }">
 
   <Page
     id="watchListPage"
-    title="WATCH — Monitors"
-    showHeader="true">
-
-    <headerContent>
-      <Button
-        id="btnCreate"
-        text="Nuevo Watch"
-        type="Emphasized"
-        icon="sap-icon://add"
-        press="onCreateWatch" />
-    </headerContent>
+    class="watchPage"
+    showHeader="false"
+    enableScrolling="true">
 
     <content>
-      <Table
-        id="watchesTable"
-        growing="true"
-        growingThreshold="20"
-        mode="Delete"
-        delete="onDeleteWatch"
-        items="{
-          path: '/Watches',
-          sorter: { path: 'createdAt', descending: true }
-        }">
 
-        <headerToolbar>
-          <OverflowToolbar>
-            <Title text="Watches" level="H2" />
-            <ToolbarSpacer />
-            <SearchField
-              id="searchField"
-              placeholder="Buscar por nombre..."
-              liveChange="onSearch"
-              width="300px" />
-          </OverflowToolbar>
-        </headerToolbar>
+      <!-- ── Hero ─────────────────────────────────── -->
+      <FlexBox
+        class="watchHero"
+        justifyContent="SpaceBetween"
+        alignItems="Center"
+        wrap="Wrap">
+        <HBox class="watchHeroBrand" alignItems="Center">
+          <core:Icon src="sap-icon://show" class="watchHeroLogo" />
+          <VBox>
+            <Title text="{i18n>brand}" level="H1" titleStyle="H1" class="watchHeroTitle" />
+            <Text text="{i18n>brandSubtitle}" class="watchHeroSubtitle" />
+          </VBox>
+        </HBox>
+        <Button
+          id="btnCreate"
+          text="{i18n>newWatch}"
+          type="Emphasized"
+          icon="sap-icon://add"
+          press="onCreateWatch" />
+      </FlexBox>
 
-        <columns>
-          <Column><Text text="Nombre" /></Column>
-          <Column><Text text="URL" /></Column>
-          <Column><Text text="Tipo" /></Column>
-          <Column><Text text="Frecuencia" /></Column>
-          <Column><Text text="Estado" /></Column>
-          <Column><Text text="Creado" /></Column>
-        </columns>
+      <VBox class="watchBody">
 
-        <items>
-          <ColumnListItem type="Active" press="onWatchPress">
-            <cells>
-              <Text text="{name}" />
-              <Text text="{url}" />
-              <ObjectStatus
-                text="{type}"
-                state="Information" />
-              <Text text="{frequency}" />
-              <ObjectStatus
-                text="{status}"
-                state="{= ${status} === 'ACTIVE' ? 'Success' : ${status} === 'PAUSED' ? 'Warning' : ${status} === 'TRIGGERED' ? 'Error' : 'None' }" />
-              <Text text="{path: 'createdAt', type: 'sap.ui.model.type.DateTime', formatOptions: { style: 'medium' }}" />
-            </cells>
-          </ColumnListItem>
-        </items>
+        <!-- ── KPIs ───────────────────────────────── -->
+        <FlexBox class="watchKpis sapUiSmallMarginBottom" wrap="Wrap">
+          <GenericTile id="kpiTotal" header="{i18n>kpiTotal}" frameType="OneByHalf"
+            class="sapUiTinyMarginEnd sapUiTinyMarginBottom" press="onKpiPress">
+            <customData><core:CustomData key="status" value="ALL" /></customData>
+            <TileContent>
+              <NumericContent value="{ui>/kpi/total}" icon="sap-icon://show" withMargin="false" />
+            </TileContent>
+          </GenericTile>
+          <GenericTile id="kpiActive" header="{i18n>kpiActive}" frameType="OneByHalf"
+            class="sapUiTinyMarginEnd sapUiTinyMarginBottom" press="onKpiPress">
+            <customData><core:CustomData key="status" value="ACTIVE" /></customData>
+            <TileContent>
+              <NumericContent value="{ui>/kpi/active}" valueColor="Good" icon="sap-icon://media-play" withMargin="false" />
+            </TileContent>
+          </GenericTile>
+          <GenericTile id="kpiPaused" header="{i18n>kpiPaused}" frameType="OneByHalf"
+            class="sapUiTinyMarginEnd sapUiTinyMarginBottom" press="onKpiPress">
+            <customData><core:CustomData key="status" value="PAUSED" /></customData>
+            <TileContent>
+              <NumericContent value="{ui>/kpi/paused}" valueColor="Critical" icon="sap-icon://media-pause" withMargin="false" />
+            </TileContent>
+          </GenericTile>
+          <GenericTile id="kpiTriggered" header="{i18n>kpiTriggered}" frameType="OneByHalf"
+            class="sapUiTinyMarginEnd sapUiTinyMarginBottom" press="onKpiPress">
+            <customData><core:CustomData key="status" value="TRIGGERED" /></customData>
+            <TileContent>
+              <NumericContent value="{ui>/kpi/triggered}" valueColor="Error" icon="sap-icon://alert" withMargin="false" />
+            </TileContent>
+          </GenericTile>
+        </FlexBox>
 
-      </Table>
+        <!-- ── Tabla ──────────────────────────────── -->
+        <VBox class="watchCard">
+
+          <FlexBox class="watchFilters" wrap="Wrap" alignItems="Center" justifyContent="SpaceBetween">
+            <SegmentedButton
+              id="statusFilter"
+              selectedKey="{ui>/statusFilter}"
+              selectionChange="onFilterChange"
+              class="sapUiTinyMarginEnd sapUiTinyMarginBottom">
+              <items>
+                <SegmentedButtonItem key="ALL"       text="{i18n>filterAll}"     width="6rem" />
+                <SegmentedButtonItem key="ACTIVE"    text="{i18n>kpiActive}"     width="6rem" />
+                <SegmentedButtonItem key="PAUSED"    text="{i18n>kpiPaused}"     width="6rem" />
+                <SegmentedButtonItem key="TRIGGERED" text="{i18n>kpiTriggered}"  width="7rem" />
+              </items>
+            </SegmentedButton>
+
+            <HBox wrap="Wrap" alignItems="Center">
+              <Select id="selectTypeFilter" change="onFilterChange"
+                class="sapUiTinyMarginEnd sapUiTinyMarginBottom" selectedKey="ALL">
+                <core:Item key="ALL"     text="{i18n>filterTypeAll}" />
+                <core:Item key="PRICE"   text="{i18n>type.PRICE}" />
+                <core:Item key="STOCK"   text="{i18n>type.STOCK}" />
+                <core:Item key="CONTENT" text="{i18n>type.CONTENT}" />
+                <core:Item key="CUSTOM"  text="{i18n>type.CUSTOM}" />
+              </Select>
+              <Select id="selectFrequencyFilter" change="onFilterChange"
+                class="sapUiTinyMarginEnd sapUiTinyMarginBottom" selectedKey="ALL">
+                <core:Item key="ALL"    text="{i18n>filterFrequencyAll}" />
+                <core:Item key="HOURLY" text="{i18n>frequency.HOURLY}" />
+                <core:Item key="DAILY"  text="{i18n>frequency.DAILY}" />
+                <core:Item key="WEEKLY" text="{i18n>frequency.WEEKLY}" />
+              </Select>
+              <Select id="selectSort" change="onFilterChange"
+                class="sapUiTinyMarginEnd sapUiTinyMarginBottom" selectedKey="createdAt:desc">
+                <core:Item key="createdAt:desc" text="{i18n>sortNewest}" />
+                <core:Item key="createdAt:asc"  text="{i18n>sortOldest}" />
+                <core:Item key="name:asc"       text="{i18n>sortNameAsc}" />
+                <core:Item key="name:desc"      text="{i18n>sortNameDesc}" />
+              </Select>
+              <SearchField
+                id="searchField"
+                placeholder="{i18n>searchPlaceholder}"
+                liveChange="onFilterChange"
+                width="16rem"
+                class="sapUiTinyMarginBottom" />
+            </HBox>
+          </FlexBox>
+
+          <Table
+            id="watchesTable"
+            growing="true"
+            growingThreshold="20"
+            mode="Delete"
+            delete="onDeleteWatch"
+            popinLayout="GridSmall"
+            items="{
+              path: '/Watches',
+              sorter: { path: 'createdAt', descending: true }
+            }">
+
+            <noData>
+              <IllustratedMessage
+                illustrationType="sapIllus-NoEntries"
+                title="{i18n>emptyTitle}"
+                description="{i18n>emptyDescription}" />
+            </noData>
+
+            <columns>
+              <Column><Text text="{i18n>colName}" /></Column>
+              <Column minScreenWidth="Tablet" demandPopin="true"><Text text="{i18n>colUrl}" /></Column>
+              <Column minScreenWidth="Tablet" demandPopin="true"><Text text="{i18n>colType}" /></Column>
+              <Column minScreenWidth="Desktop" demandPopin="true"><Text text="{i18n>colFrequency}" /></Column>
+              <Column><Text text="{i18n>colStatus}" /></Column>
+              <Column minScreenWidth="Desktop" demandPopin="true"><Text text="{i18n>colCreated}" /></Column>
+              <Column hAlign="End"><Text text="{i18n>colActions}" /></Column>
+            </columns>
+
+            <items>
+              <ColumnListItem type="Navigation" press="onWatchPress" vAlign="Middle">
+                <cells>
+                  <ObjectIdentifier title="{name}" />
+                  <Link text="{url}" href="{url}" target="_blank" wrapping="false"
+                    class="watchUrl" />
+                  <HBox class="watchTypeCell" alignItems="Center">
+                    <core:Icon
+                      src="{path: 'type', formatter: 'formatter.typeIcon'}"
+                      class="watchTypeIcon sapUiTinyMarginEnd" />
+                    <Text text="{path: 'type', formatter: 'formatter.typeText'}" />
+                  </HBox>
+                  <Text text="{path: 'frequency', formatter: 'formatter.frequencyText'}" />
+                  <ObjectStatus
+                    text="{path: 'status', formatter: 'formatter.statusText'}"
+                    icon="{path: 'status', formatter: 'formatter.statusIcon'}"
+                    state="{path: 'status', formatter: 'formatter.statusState'}" />
+                  <Text text="{path: 'createdAt', type: 'sap.ui.model.type.DateTime', formatOptions: { style: 'medium' }}" />
+                  <HBox justifyContent="End">
+                    <Button
+                      icon="{path: 'status', formatter: 'formatter.toggleIcon'}"
+                      tooltip="{path: 'status', formatter: 'formatter.toggleTooltip'}"
+                      type="Transparent"
+                      enabled="{path: 'status', formatter: 'formatter.canToggle'}"
+                      press="onToggleStatus" />
+                    <Button
+                      icon="sap-icon://edit"
+                      tooltip="{i18n>tooltipEdit}"
+                      type="Transparent"
+                      press="onEditPress" />
+                  </HBox>
+                </cells>
+              </ColumnListItem>
+            </items>
+
+          </Table>
+        </VBox>
+
+      </VBox>
     </content>
 
   </Page>
