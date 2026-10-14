@@ -1,0 +1,75 @@
+<core:FragmentDefinition
+  xmlns="sap.m"
+  xmlns:core="sap.ui.core"
+  xmlns:form="sap.ui.layout.form">
+
+  <Dialog
+    id="editWatchDialog"
+    title="{i18n>dialogEditTitle}"
+    contentWidth="480px"
+    type="Message">
+
+    <content>
+      <form:SimpleForm
+        id="editWatchForm"
+        editable="true"
+        layout="ResponsiveGridLayout"
+        labelSpanXL="4" labelSpanL="4" labelSpanM="4" labelSpanS="12"
+        emptySpanXL="0" emptySpanL="0" emptySpanM="0" emptySpanS="0"
+        columnsXL="1" columnsL="1" columnsM="1">
+
+        <form:content>
+          <Label text="{i18n>labelName}" required="true" />
+          <Input id="editInputName" liveChange="onNameLiveChange" />
+
+          <Label text="{i18n>labelUrl}" required="true" />
+          <Input id="editInputUrl" type="Url" liveChange="onUrlLiveChange" />
+
+          <Label text="{i18n>labelType}" />
+          <Select id="editSelectType">
+            <core:Item key="PRICE"   text="{i18n>type.PRICE}" />
+            <core:Item key="STOCK"   text="{i18n>type.STOCK}" />
+            <core:Item key="CONTENT" text="{i18n>type.CONTENT}" />
+            <core:Item key="CUSTOM"  text="{i18n>type.CUSTOM}" />
+          </Select>
+
+          <Label text="{i18n>labelCondition}" />
+          <Input id="editInputCondition" />
+
+          <Label text="{i18n>labelFrequency}" />
+          <Select id="editSelectFrequency">
+            <core:Item key="HOURLY" text="{i18n>frequency.HOURLY}" />
+            <core:Item key="DAILY"  text="{i18n>frequency.DAILY}" />
+            <core:Item key="WEEKLY" text="{i18n>frequency.WEEKLY}" />
+          </Select>
+
+          <Label text="{i18n>labelStatus}" />
+          <Select id="editSelectStatus">
+            <core:Item key="ACTIVE"    text="{i18n>status.ACTIVE}" />
+            <core:Item key="PAUSED"    text="{i18n>status.PAUSED}" />
+            <core:Item key="TRIGGERED" text="{i18n>status.TRIGGERED}" />
+            <core:Item key="ARCHIVED"  text="{i18n>status.ARCHIVED}" />
+          </Select>
+        </form:content>
+
+      </form:SimpleForm>
+    </content>
+
+    <beginButton>
+      <Button
+        id="btnEditSave"
+        text="{i18n>btnSave}"
+        type="Emphasized"
+        press=".onEditSavePress" />
+    </beginButton>
+
+    <endButton>
+      <Button
+        id="btnEditCancel"
+        text="{i18n>btnCancel}"
+        press=".onEditCancelPress" />
+    </endButton>
+
+  </Dialog>
+
+</core:FragmentDefinition>
