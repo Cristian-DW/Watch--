@@ -1,0 +1,94 @@
+<mvc:View
+  controllerName="watch.watches.controller.WatchDetail"
+  xmlns:mvc="sap.ui.core.mvc"
+  xmlns:core="sap.ui.core"
+  xmlns:form="sap.ui.layout.form"
+  xmlns="sap.m"
+  core:require="{ formatter: 'watch/watches/model/formatter' }">
+
+  <Page
+    id="watchDetailPage"
+    class="watchPage"
+    title="{i18n>detailTitle}"
+    showNavButton="true"
+    navButtonPress="onNavBack">
+
+    <content>
+      <VBox class="watchBody">
+        <VBox class="watchCard sapUiSmallMarginBottom">
+          <ObjectHeader
+            id="detailHeader"
+            title="{name}"
+            icon="{path: 'type', formatter: 'formatter.typeIcon'}"
+            responsive="true"
+            intro="{url}"
+            introActive="true"
+            introPress="onOpenUrl">
+            <statuses>
+              <ObjectStatus
+                text="{path: 'status', formatter: 'formatter.statusText'}"
+                icon="{path: 'status', formatter: 'formatter.statusIcon'}"
+                state="{path: 'status', formatter: 'formatter.statusState'}" />
+            </statuses>
+            <attributes>
+              <ObjectAttribute text="{path: 'type', formatter: 'formatter.typeText'}" />
+              <ObjectAttribute text="{path: 'frequency', formatter: 'formatter.frequencyText'}" />
+            </attributes>
+          </ObjectHeader>
+        </VBox>
+
+        <VBox class="watchCard sapUiSmallMarginBottom">
+          <form:SimpleForm editable="false" layout="ResponsiveGridLayout"
+            title="{i18n>detailSectionInfo}">
+            <form:content>
+              <Label text="{i18n>labelUrl}" />
+              <Link text="{url}" href="{url}" target="_blank" />
+              <Label text="{i18n>labelType}" />
+              <Text text="{path: 'type', formatter: 'formatter.typeText'}" />
+              <Label text="{i18n>labelCondition}" />
+              <Text text="{condition}" />
+              <Label text="{i18n>labelFrequency}" />
+              <Text text="{path: 'frequency', formatter: 'formatter.frequencyText'}" />
+            </form:content>
+          </form:SimpleForm>
+        </VBox>
+
+        <VBox class="watchCard">
+          <form:SimpleForm editable="false" layout="ResponsiveGridLayout"
+            title="{i18n>detailSectionAudit}">
+            <form:content>
+              <Label text="{i18n>detailCreatedAt}" />
+              <Text text="{path: 'createdAt', type: 'sap.ui.model.type.DateTime', formatOptions: { style: 'medium' }}" />
+              <Label text="{i18n>detailCreatedBy}" />
+              <Text text="{createdBy}" />
+              <Label text="{i18n>detailModifiedAt}" />
+              <Text text="{path: 'modifiedAt', type: 'sap.ui.model.type.DateTime', formatOptions: { style: 'medium' }}" />
+              <Label text="{i18n>detailModifiedBy}" />
+              <Text text="{modifiedBy}" />
+            </form:content>
+          </form:SimpleForm>
+        </VBox>
+      </VBox>
+    </content>
+
+    <footer>
+      <OverflowToolbar>
+        <ToolbarSpacer />
+        <Button
+          id="btnDetailToggle"
+          icon="{path: 'status', formatter: 'formatter.toggleIcon'}"
+          text="{path: 'status', formatter: 'formatter.toggleTooltip'}"
+          enabled="{path: 'status', formatter: 'formatter.canToggle'}"
+          press="onToggleStatus" />
+        <Button
+          id="btnDetailDelete"
+          icon="sap-icon://delete"
+          text="{i18n>btnDelete}"
+          type="Reject"
+          press="onDelete" />
+      </OverflowToolbar>
+    </footer>
+
+  </Page>
+
+</mvc:View>
