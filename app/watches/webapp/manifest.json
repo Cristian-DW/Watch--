@@ -3,8 +3,13 @@
   "sap.app": {
     "id": "watch.watches",
     "type": "application",
-    "title": "WATCH — Monitors",
-    "description": "Gestión de Watches para monitoreo de información en Internet",
+    "i18n": {
+      "bundleName": "watch.watches.i18n.i18n",
+      "supportedLocales": ["es", "en"],
+      "fallbackLocale": "es"
+    },
+    "title": "{{appTitle}}",
+    "description": "{{appDescription}}",
     "applicationVersion": {
       "version": "0.1.0"
     },
@@ -29,7 +34,20 @@
         "sap.ui.table": {}
       }
     },
+    "resources": {
+      "css": [
+        { "uri": "css/style.css" }
+      ]
+    },
     "models": {
+      "i18n": {
+        "type": "sap.ui.model.resource.ResourceModel",
+        "settings": {
+          "bundleName": "watch.watches.i18n.i18n",
+          "supportedLocales": ["es", "en"],
+          "fallbackLocale": "es"
+        }
+      },
       "": {
         "dataSource": "WatchService",
         "settings": {
@@ -45,6 +63,7 @@
       "config": {
         "routerClass": "sap.m.routing.Router",
         "type": "View",
+        "async": true,
         "viewType": "XML",
         "viewPath": "watch.watches.view",
         "controlId": "app",
@@ -55,12 +74,21 @@
           "name": "WatchList",
           "pattern": "",
           "target": "WatchList"
+        },
+        {
+          "name": "WatchDetail",
+          "pattern": "watch/{id}",
+          "target": "WatchDetail"
         }
       ],
       "targets": {
         "WatchList": {
           "viewName": "WatchList",
           "viewLevel": 1
+        },
+        "WatchDetail": {
+          "viewName": "WatchDetail",
+          "viewLevel": 2
         }
       }
     },

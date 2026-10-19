@@ -1,9 +1,6 @@
 namespace watch;
 
-using {
-  cuid,
-  managed
-} from '@sap/cds/common';
+using {cuid,managed} from '@sap/cds/common';
 
 /**
  * Watches — Entidades que el usuario desea monitorear.
