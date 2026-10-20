@@ -5,7 +5,7 @@
 
   <Dialog
     id="createWatchDialog"
-    title="Nuevo Watch"
+    title="{i18n>dialogCreateTitle}"
     contentWidth="480px"
     type="Message">
 
@@ -19,28 +19,30 @@
         columnsXL="1" columnsL="1" columnsM="1">
 
         <form:content>
-          <Label text="Nombre" required="true" />
-          <Input id="inputName" placeholder="Ej. Monitor de precios Amazon" />
+          <Label text="{i18n>labelName}" required="true" />
+          <Input id="inputName" placeholder="{i18n>placeholderName}"
+            liveChange="onNameLiveChange" />
 
-          <Label text="URL" required="true" />
-          <Input id="inputUrl" type="Url" placeholder="https://www.ejemplo.com/producto" />
+          <Label text="{i18n>labelUrl}" required="true" />
+          <Input id="inputUrl" type="Url" placeholder="{i18n>placeholderUrl}"
+            liveChange="onUrlLiveChange" />
 
-          <Label text="Tipo" />
+          <Label text="{i18n>labelType}" />
           <Select id="selectType" selectedKey="PRICE">
-            <core:Item key="PRICE"   text="Precio" />
-            <core:Item key="STOCK"   text="Stock" />
-            <core:Item key="CONTENT" text="Contenido" />
-            <core:Item key="CUSTOM"  text="Custom" />
+            <core:Item key="PRICE"   text="{i18n>type.PRICE}" />
+            <core:Item key="STOCK"   text="{i18n>type.STOCK}" />
+            <core:Item key="CONTENT" text="{i18n>type.CONTENT}" />
+            <core:Item key="CUSTOM"  text="{i18n>type.CUSTOM}" />
           </Select>
 
-          <Label text="Condición" />
-          <Input id="inputCondition" placeholder="Ej. price < 500" />
+          <Label text="{i18n>labelCondition}" />
+          <Input id="inputCondition" placeholder="{i18n>placeholderCondition}" />
 
-          <Label text="Frecuencia" />
+          <Label text="{i18n>labelFrequency}" />
           <Select id="selectFrequency" selectedKey="DAILY">
-            <core:Item key="HOURLY" text="Cada hora" />
-            <core:Item key="DAILY"  text="Diario" />
-            <core:Item key="WEEKLY" text="Semanal" />
+            <core:Item key="HOURLY" text="{i18n>frequency.HOURLY}" />
+            <core:Item key="DAILY"  text="{i18n>frequency.DAILY}" />
+            <core:Item key="WEEKLY" text="{i18n>frequency.WEEKLY}" />
           </Select>
         </form:content>
 
@@ -50,7 +52,7 @@
     <beginButton>
       <Button
         id="btnDialogCreate"
-        text="Crear"
+        text="{i18n>btnCreate}"
         type="Emphasized"
         press=".onDialogCreatePress" />
     </beginButton>
@@ -58,7 +60,7 @@
     <endButton>
       <Button
         id="btnDialogCancel"
-        text="Cancelar"
+        text="{i18n>btnCancel}"
         press=".onDialogCancelPress" />
     </endButton>
 
