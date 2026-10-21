@@ -7,7 +7,7 @@ using watch from '../db/schema';
  * Lógica custom (validaciones, side-effects) se implementa
  * en watch-service.js.
  */
-service WatchService @(path: '/api') {
+service WatchService @(path: '/api') @(requires: 'authenticated-user') {
 
   entity Watches as projection on watch.Watches;
 
