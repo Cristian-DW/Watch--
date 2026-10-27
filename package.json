@@ -8,7 +8,8 @@
   "dependencies": {
     "@cap-js/hana": "^2",
     "@sap/cds": "^9",
-    "express": "^4"
+    "express": "^4",
+    "@sap/xssec": "^4"
   },
   "devDependencies": {
     "@cap-js/cds-test": "^1",
@@ -25,7 +26,14 @@
   },
   "cds": {
     "requires": {
-      "db": "sql"
+      "db": "sql",
+      "html5-repo": true,
+      "[development]": {
+        "auth": "dummy"
+      },
+      "[production]": {
+        "auth": "xsuaa"
+      }
     }
   },
   "sapux": [
