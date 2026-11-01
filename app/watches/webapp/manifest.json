@@ -5,7 +5,10 @@
     "type": "application",
     "i18n": {
       "bundleName": "watch.watches.i18n.i18n",
-      "supportedLocales": ["es", "en"],
+      "supportedLocales": [
+        "es",
+        "en"
+      ],
       "fallbackLocale": "es"
     },
     "title": "{{appTitle}}",
@@ -36,7 +39,9 @@
     },
     "resources": {
       "css": [
-        { "uri": "css/style.css" }
+        {
+          "uri": "css/style.css"
+        }
       ]
     },
     "models": {
@@ -44,7 +49,10 @@
         "type": "sap.ui.model.resource.ResourceModel",
         "settings": {
           "bundleName": "watch.watches.i18n.i18n",
-          "supportedLocales": ["es", "en"],
+          "supportedLocales": [
+            "es",
+            "en"
+          ],
           "fallbackLocale": "es"
         }
       },

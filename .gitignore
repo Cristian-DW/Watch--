@@ -24,3 +24,7 @@ __MACOSX/
 _out/
 dist/
 mta_archives/
+
+# MTA build
+mta_archives/
+Makefile_*.mta
