@@ -1,5 +1,29 @@
 {
-  "scopes": [],
+  "xsappname": "watch",
+  "tenant-mode": "dedicated",
+  "scopes": [
+    {
+      "name": "$XSAPPNAME.WatchUser",
+      "description": "Gestionar Watches"
+    }
+  ],
   "attributes": [],
-  "role-templates": []
+  "role-templates": [
+    {
+      "name": "WatchUser",
+      "description": "Usuario de WATCH",
+      "scope-references": [
+        "$XSAPPNAME.WatchUser"
+      ]
+    }
+  ],
+  "role-collections": [
+    {
+      "name": "WatchUser",
+      "description": "Acceso a la aplicación WATCH",
+      "role-template-references": [
+        "$XSAPPNAME.WatchUser"
+      ]
+    }
+  ]
 }
