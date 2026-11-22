@@ -8,8 +8,9 @@
   "dependencies": {
     "@cap-js/hana": "^2",
     "@sap/cds": "^9",
+    "@sap/xssec": "^4",
     "express": "^4",
-    "@sap/xssec": "^4"
+    "nodemailer": "^7.0.13"
   },
   "devDependencies": {
     "@cap-js/cds-test": "^1",
@@ -33,6 +34,100 @@
       },
       "[production]": {
         "auth": "xsuaa"
+      }
+    },
+    "watch": {
+      "currency": "COP",
+      "checkOnCreate": true,
+      "scheduler": {
+        "enabled": true,
+        "tickSeconds": 60,
+        "maxWatchesPerTick": 10
+      },
+      "matching": {
+        "minScore": 0.75,
+        "outlierRatio": 0.35
+      },
+      "notifications": {
+        "email": {
+          "enabled": true,
+          "from": "WATCH <no-reply@watch.local>"
+        }
+      },
+      "providers": {
+        "remotive": {
+          "enabled": true
+        },
+        "arbeitnow": {
+          "enabled": true
+        },
+        "serpapi-google-jobs": {
+          "enabled": true,
+          "hl": "es"
+        },
+        "jsearch": {
+          "enabled": true,
+          "datePosted": "week"
+        },
+        "mercadolibre": {
+          "enabled": true,
+          "site": "MCO"
+        },
+        "serpapi-google-shopping": {
+          "enabled": true,
+          "gl": "co",
+          "hl": "es"
+        },
+        "mock-jobs": {
+          "enabled": false
+        },
+        "mock-shop": {
+          "enabled": false
+        }
+      },
+      "[development]": {
+        "providers": {
+          "mock-jobs": {
+            "enabled": true,
+            "newEveryMinutes": 15
+          },
+          "mock-shop": {
+            "enabled": true,
+            "repriceMinutes": 30
+          }
+        }
+      },
+      "[test]": {
+        "checkOnCreate": false,
+        "scheduler": {
+          "enabled": false
+        },
+        "providers": {
+          "remotive": {
+            "enabled": false
+          },
+          "arbeitnow": {
+            "enabled": false
+          },
+          "serpapi-google-jobs": {
+            "enabled": false
+          },
+          "jsearch": {
+            "enabled": false
+          },
+          "mercadolibre": {
+            "enabled": false
+          },
+          "serpapi-google-shopping": {
+            "enabled": false
+          },
+          "mock-jobs": {
+            "enabled": false
+          },
+          "mock-shop": {
+            "enabled": false
+          }
+        }
       }
     }
   },
