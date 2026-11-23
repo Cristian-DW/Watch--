@@ -35,6 +35,15 @@ service WatchService @(path: '/api') @(requires: 'WatchUser') {
   /** Providers de búsqueda registrados y si están habilitados. */
   function providers() returns array of ProviderInfo;
 
+  /**
+   * Autocompletado y sugerencias inteligentes de productos, empleos y plantillas de Watch.
+   * Permite que el usuario solo escriba parte del nombre sin necesidad de pegar una URL.
+   */
+  function suggest(term : String, type : String, category : String) returns array of WatchSuggestion;
+
+  /** Catálogo de categorías por áreas de empleabilidad y tipos de producto. */
+  function categories(type : String) returns array of CategoryInfo;
+
   type RunResult {
     status   : String;
     found    : Integer;
@@ -49,5 +58,27 @@ service WatchService @(path: '/api') @(requires: 'WatchUser') {
     label    : String;
     enabled  : Boolean;
     reason   : String;
+  }
+
+  type WatchSuggestion {
+    id          : String;
+    title       : String;
+    query       : String;
+    type        : String;
+    category    : String;
+    subcategory : String;
+    location    : String;
+    targetPrice : Decimal(15, 2);
+    currency    : String;
+    url         : String;
+    description : String;
+  }
+
+  type CategoryInfo {
+    code          : String;
+    kind          : String;
+    label         : String;
+    icon          : String;
+    subcategories : array of String;
   }
 }

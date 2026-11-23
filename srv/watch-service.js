@@ -1,33 +1,22 @@
-/**
- * Implementación custom del WatchService.
- *
- * Registra validaciones y hooks de negocio
- * para la entidad Watches.
- *
- * El CRUD estándar (GET, POST, PUT/PATCH, DELETE)
- * lo maneja CAP automáticamente; aquí solo añadimos
- * validaciones y lógica adicional:
- *   - Watches basados en URL vs. basados en búsqueda (JOB / PRODUCT).
- *   - Acción `checkNow` y primer chequeo automático tras crear.
- *   - Bandeja de notificaciones (marcar como leídas).
- */
 const cds = require('@sap/cds');
 const engine = require('./monitoring/engine');
 const providers = require('./monitoring/providers');
+const catalog = require('./monitoring/catalog');
 const { getConfig } = require('./monitoring/config');
 
 const LOG = cds.log('watch-service');
 
 module.exports = function WatchService() {
 
-  const URL_TYPES         = ['PRICE', 'STOCK', 'CONTENT', 'CUSTOM'];
-  const SEARCH_TYPES      = ['JOB', 'PRODUCT'];
-  const VALID_TYPES       = [...URL_TYPES, ...SEARCH_TYPES];
+  const URL_TYPES = ['PRICE', 'STOCK', 'CONTENT', 'CUSTOM'];
+  const SEARCH_TYPES = ['JOB', 'PRODUCT'];
+  const VALID_TYPES = [...URL_TYPES, ...SEARCH_TYPES];
+  const VALID_CATEGORIES = catalog.VALID_CATEGORIES;
   const VALID_FREQUENCIES = ['HOURLY', 'DAILY', 'WEEKLY'];
-  const VALID_STATUSES    = ['ACTIVE', 'PAUSED', 'TRIGGERED', 'ARCHIVED'];
-  const URL_REGEX         = /^https?:\/\/.+/i;
-  const EMAIL_REGEX       = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-  const CURRENCY_REGEX    = /^[A-Z]{3}$/;
+  const VALID_STATUSES = ['ACTIVE', 'PAUSED', 'TRIGGERED', 'ARCHIVED'];
+  const URL_REGEX = /^https?:\/\/.+/i;
+  const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  const CURRENCY_REGEX = /^[A-Z]{3}$/;
 
   // Entidades de persistencia (las escrituras técnicas no pasan por las restricciones del servicio)
   const { Watches, Notifications, Offers } = cds.entities('watch');
@@ -65,7 +54,15 @@ module.exports = function WatchService() {
   function validateByType(req, w) {
     const type = w.type || 'PRICE';
 
+    if (w.category) {
+      const catErr = validateEnum(w.category, VALID_CATEGORIES, 'category');
+      if (catErr) req.error(400, catErr, 'category');
+    }
+
     if (SEARCH_TYPES.includes(type)) {
+      if (!w.query && w.name) {
+        w.query = w.name;
+      }
       if (!w.query || w.query.trim().length < 2) {
         req.error(400, type === 'JOB'
           ? 'Indica el rol o palabras clave del empleo a buscar (ej. SAP Architect BTP).'
@@ -75,6 +72,7 @@ module.exports = function WatchService() {
         req.error(400, 'La URL debe comenzar con http:// o https://', 'url');
       }
     } else {
+      // Si el usuario no ingresó URL pero sí nombre/query, convertir o validar
       const urlErr = validateUrl(w.url);
       if (urlErr) req.error(400, urlErr, 'url');
     }
@@ -95,7 +93,7 @@ module.exports = function WatchService() {
   }
 
   function normalizeStrings(data) {
-    for (const key of ['url', 'name', 'query', 'location', 'notifyEmail']) {
+    for (const key of ['url', 'name', 'query', 'location', 'notifyEmail', 'category', 'subcategory']) {
       if (typeof data[key] === 'string') data[key] = data[key].trim() || null;
     }
     if (typeof data.currency === 'string') data.currency = data.currency.trim().toUpperCase();
@@ -127,7 +125,12 @@ module.exports = function WatchService() {
 
     // Normalizar strings (URL, nombre, query...)
     normalizeStrings(req.data);
-    if (!typeErr) validateByType(req, req.data);
+    if (!typeErr) {
+      validateByType(req, req.data);
+      if (!req.data.category) {
+        req.data.category = catalog.inferCategory(req.data);
+      }
+    }
   });
 
   this.after('CREATE', 'Watches', (data) => {
@@ -219,6 +222,16 @@ module.exports = function WatchService() {
   });
 
   this.on('providers', () => providers.listProviders());
+
+  this.on('suggest', (req) => {
+    const { term, type, category } = req.data || {};
+    return catalog.suggestWatches({ term, type, category });
+  });
+
+  this.on('categories', (req) => {
+    const { type } = req.data || {};
+    return catalog.listCategories(type);
+  });
 
   // ── Notificaciones ─────────────────────────────────────
 

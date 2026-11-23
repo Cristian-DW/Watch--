@@ -23,7 +23,11 @@ entity Watches : cuid, managed {
   frequency       : Frequency     default 'DAILY';
   status          : Status        default 'ACTIVE';
 
-  // ── Búsqueda (JOB / PRODUCT) ───────────────────────────
+  // ── Búsqueda y Categorización (JOB / PRODUCT) ──────────
+  /** Categoría principal: áreas de empleabilidad o tipos de producto. */
+  category        : WatchCategory;
+  /** Subcategoría o vertical específica (ej. SAP BTP, Sneakers, Smartphones). */
+  subcategory     : String(120);
   /** Palabras clave. Soporta "frase exacta" y -exclusión. Ej: SAP Architect BTP -junior */
   query           : String(255);
   /** Ubicación deseada para empleos (vacío = global). Ej: Colombia, Remote */
@@ -181,3 +185,26 @@ type RunStatus : String enum {
   FAILED;
   SKIPPED;
 }
+
+/**
+ * Categorías de empleabilidad (JOB) y tipos de producto (PRODUCT / URL).
+ */
+type WatchCategory : String enum {
+  // Áreas de empleabilidad (JOB)
+  JOB_SAP_ERP;
+  JOB_SOFTWARE_DEV;
+  JOB_CLOUD_DEVOPS;
+  JOB_DATA_AI;
+  JOB_CYBERSECURITY;
+  JOB_PRODUCT_AGILE;
+  // Tipos de producto (PRODUCT / PRICE / STOCK)
+  PROD_FOOTWEAR;
+  PROD_TECH;
+  PROD_GAMING;
+  PROD_HOME;
+  PROD_FASHION;
+  PROD_SPORTS;
+  // General
+  OTHER;
+}
+
