@@ -6,7 +6,7 @@
   <Dialog
     id="editWatchDialog"
     title="{i18n>dialogEditTitle}"
-    contentWidth="480px"
+    contentWidth="520px"
     type="Message">
 
     <content>
@@ -22,16 +22,50 @@
           <Label text="{i18n>labelName}" required="true" />
           <Input id="editInputName" liveChange="onNameLiveChange" />
 
-          <Label text="{i18n>labelUrl}" required="true" />
-          <Input id="editInputUrl" type="Url" liveChange="onUrlLiveChange" />
-
           <Label text="{i18n>labelType}" />
           <Select id="editSelectType">
+            <core:Item key="PRODUCT" text="{i18n>type.PRODUCT}" />
+            <core:Item key="JOB"     text="{i18n>type.JOB}" />
             <core:Item key="PRICE"   text="{i18n>type.PRICE}" />
             <core:Item key="STOCK"   text="{i18n>type.STOCK}" />
             <core:Item key="CONTENT" text="{i18n>type.CONTENT}" />
             <core:Item key="CUSTOM"  text="{i18n>type.CUSTOM}" />
           </Select>
+
+          <Label text="{i18n>labelCategory}" />
+          <Select id="editSelectCategory">
+            <core:Item key="PROD_FOOTWEAR"     text="{i18n>category.PROD_FOOTWEAR}" />
+            <core:Item key="PROD_TECH"         text="{i18n>category.PROD_TECH}" />
+            <core:Item key="PROD_GAMING"       text="{i18n>category.PROD_GAMING}" />
+            <core:Item key="PROD_HOME"         text="{i18n>category.PROD_HOME}" />
+            <core:Item key="PROD_FASHION"      text="{i18n>category.PROD_FASHION}" />
+            <core:Item key="PROD_SPORTS"       text="{i18n>category.PROD_SPORTS}" />
+            <core:Item key="JOB_SAP_ERP"       text="{i18n>category.JOB_SAP_ERP}" />
+            <core:Item key="JOB_SOFTWARE_DEV"  text="{i18n>category.JOB_SOFTWARE_DEV}" />
+            <core:Item key="JOB_CLOUD_DEVOPS"  text="{i18n>category.JOB_CLOUD_DEVOPS}" />
+            <core:Item key="JOB_DATA_AI"       text="{i18n>category.JOB_DATA_AI}" />
+            <core:Item key="JOB_CYBERSECURITY" text="{i18n>category.JOB_CYBERSECURITY}" />
+            <core:Item key="JOB_PRODUCT_AGILE" text="{i18n>category.JOB_PRODUCT_AGILE}" />
+            <core:Item key="OTHER"             text="{i18n>category.OTHER}" />
+          </Select>
+
+          <Label text="{i18n>labelSubcategory}" />
+          <Input id="editInputSubcategory" />
+
+          <Label text="{i18n>labelQuery}" />
+          <Input id="editInputQuery" />
+
+          <Label text="{i18n>labelLocation}" />
+          <Input id="editInputLocation" />
+
+          <Label text="{i18n>labelTargetPrice}" />
+          <Input id="editInputTargetPrice" type="Number" />
+
+          <Label text="{i18n>labelUrl}" />
+          <Input id="editInputUrl" type="Url" liveChange="onUrlLiveChange" />
+
+          <Label text="{i18n>labelNotifyEmail}" />
+          <Input id="editInputNotifyEmail" type="Email" />
 
           <Label text="{i18n>labelCondition}" />
           <Input id="editInputCondition" />
