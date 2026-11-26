@@ -89,10 +89,29 @@
               <Select id="selectTypeFilter" change="onFilterChange"
                 class="sapUiTinyMarginEnd sapUiTinyMarginBottom" selectedKey="ALL">
                 <core:Item key="ALL"     text="{i18n>filterTypeAll}" />
+                <core:Item key="PRODUCT" text="{i18n>type.PRODUCT}" />
+                <core:Item key="JOB"     text="{i18n>type.JOB}" />
                 <core:Item key="PRICE"   text="{i18n>type.PRICE}" />
                 <core:Item key="STOCK"   text="{i18n>type.STOCK}" />
                 <core:Item key="CONTENT" text="{i18n>type.CONTENT}" />
                 <core:Item key="CUSTOM"  text="{i18n>type.CUSTOM}" />
+              </Select>
+              <Select id="selectCategoryFilter" change="onFilterChange"
+                class="sapUiTinyMarginEnd sapUiTinyMarginBottom" selectedKey="ALL">
+                <core:Item key="ALL"               text="{i18n>filterCategoryAll}" />
+                <core:Item key="JOB_SAP_ERP"       text="{i18n>category.JOB_SAP_ERP}" />
+                <core:Item key="JOB_SOFTWARE_DEV"  text="{i18n>category.JOB_SOFTWARE_DEV}" />
+                <core:Item key="JOB_CLOUD_DEVOPS"  text="{i18n>category.JOB_CLOUD_DEVOPS}" />
+                <core:Item key="JOB_DATA_AI"       text="{i18n>category.JOB_DATA_AI}" />
+                <core:Item key="JOB_CYBERSECURITY" text="{i18n>category.JOB_CYBERSECURITY}" />
+                <core:Item key="JOB_PRODUCT_AGILE" text="{i18n>category.JOB_PRODUCT_AGILE}" />
+                <core:Item key="PROD_FOOTWEAR"     text="{i18n>category.PROD_FOOTWEAR}" />
+                <core:Item key="PROD_TECH"         text="{i18n>category.PROD_TECH}" />
+                <core:Item key="PROD_GAMING"       text="{i18n>category.PROD_GAMING}" />
+                <core:Item key="PROD_HOME"         text="{i18n>category.PROD_HOME}" />
+                <core:Item key="PROD_FASHION"      text="{i18n>category.PROD_FASHION}" />
+                <core:Item key="PROD_SPORTS"       text="{i18n>category.PROD_SPORTS}" />
+                <core:Item key="OTHER"             text="{i18n>category.OTHER}" />
               </Select>
               <Select id="selectFrequencyFilter" change="onFilterChange"
                 class="sapUiTinyMarginEnd sapUiTinyMarginBottom" selectedKey="ALL">
@@ -138,20 +157,44 @@
 
             <columns>
               <Column><Text text="{i18n>colName}" /></Column>
-              <Column minScreenWidth="Tablet" demandPopin="true"><Text text="{i18n>colUrl}" /></Column>
+              <Column minScreenWidth="Tablet" demandPopin="true"><Text text="{i18n>colCategory}" /></Column>
+              <Column minScreenWidth="Tablet" demandPopin="true"><Text text="{i18n>colTarget}" /></Column>
               <Column minScreenWidth="Tablet" demandPopin="true"><Text text="{i18n>colType}" /></Column>
               <Column minScreenWidth="Desktop" demandPopin="true"><Text text="{i18n>colFrequency}" /></Column>
               <Column><Text text="{i18n>colStatus}" /></Column>
-              <Column minScreenWidth="Desktop" demandPopin="true"><Text text="{i18n>colCreated}" /></Column>
               <Column hAlign="End"><Text text="{i18n>colActions}" /></Column>
             </columns>
 
             <items>
               <ColumnListItem type="Navigation" press="onWatchPress" vAlign="Middle">
                 <cells>
-                  <ObjectIdentifier title="{name}" />
-                  <Link text="{url}" href="{url}" target="_blank" wrapping="false"
-                    class="watchUrl" />
+                  <ObjectIdentifier title="{name}" text="{query}" />
+                  <HBox alignItems="Center">
+                    <core:Icon
+                      src="{path: 'category', formatter: 'formatter.categoryIcon'}"
+                      class="watchTypeIcon sapUiTinyMarginEnd" />
+                    <VBox>
+                      <Text text="{path: 'category', formatter: 'formatter.categoryText'}" />
+                      <Text text="{subcategory}" class="sapUiTinyMarginTop" visible="{= !!${subcategory} }" />
+                    </VBox>
+                  </HBox>
+                  <VBox>
+                    <ObjectNumber
+                      visible="{= ${type} === 'PRODUCT' &amp;&amp; !!${bestPrice} }"
+                      number="{parts: ['bestPrice', 'currency'], formatter: 'formatter.formatMoney'}"
+                      unit="{bestPriceSource}"
+                      state="Success" />
+                    <Text
+                      visible="{= ${type} === 'PRODUCT' &amp;&amp; !!${targetPrice} }"
+                      text="Meta: {parts: ['targetPrice', 'currency'], formatter: 'formatter.formatMoney'}" />
+                    <Text
+                      visible="{= ${type} === 'JOB' }"
+                      text="{= (${resultCount} || 0) + ' ' + ${i18n>summaryJobsFound} + (${location} ? ' · ' + ${location} : '') }" />
+                    <Link
+                      visible="{= !!${url} &amp;&amp; ${type} !== 'JOB' &amp;&amp; ${type} !== 'PRODUCT' }"
+                      text="{url}" href="{url}" target="_blank" wrapping="false"
+                      class="watchUrl" />
+                  </VBox>
                   <HBox class="watchTypeCell" alignItems="Center">
                     <core:Icon
                       src="{path: 'type', formatter: 'formatter.typeIcon'}"
@@ -163,8 +206,13 @@
                     text="{path: 'status', formatter: 'formatter.statusText'}"
                     icon="{path: 'status', formatter: 'formatter.statusIcon'}"
                     state="{path: 'status', formatter: 'formatter.statusState'}" />
-                  <Text text="{path: 'createdAt', type: 'sap.ui.model.type.DateTime', formatOptions: { style: 'medium' }}" />
                   <HBox justifyContent="End">
+                    <Button
+                      icon="sap-icon://synchronize"
+                      tooltip="{i18n>tooltipCheckNow}"
+                      type="Transparent"
+                      visible="{= ${type} === 'JOB' || ${type} === 'PRODUCT' }"
+                      press="onCheckNowPress" />
                     <Button
                       icon="{path: 'status', formatter: 'formatter.toggleIcon'}"
                       tooltip="{path: 'status', formatter: 'formatter.toggleTooltip'}"
