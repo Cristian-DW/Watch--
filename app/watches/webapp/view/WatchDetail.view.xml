@@ -21,8 +21,10 @@
             title="{name}"
             icon="{path: 'type', formatter: 'formatter.typeIcon'}"
             responsive="true"
-            intro="{url}"
-            introActive="true"
+            number="{parts: ['bestPrice', 'currency'], formatter: 'formatter.formatMoney'}"
+            numberUnit="{bestPriceSource}"
+            intro="{= ${query} || ${url} }"
+            introActive="{= !!${url} }"
             introPress="onOpenUrl">
             <statuses>
               <ObjectStatus
@@ -32,6 +34,8 @@
             </statuses>
             <attributes>
               <ObjectAttribute text="{path: 'type', formatter: 'formatter.typeText'}" />
+              <ObjectAttribute text="{path: 'category', formatter: 'formatter.categoryText'}" />
+              <ObjectAttribute text="{subcategory}" visible="{= !!${subcategory} }" />
               <ObjectAttribute text="{path: 'frequency', formatter: 'formatter.frequencyText'}" />
             </attributes>
           </ObjectHeader>
@@ -41,16 +45,88 @@
           <form:SimpleForm editable="false" layout="ResponsiveGridLayout"
             title="{i18n>detailSectionInfo}">
             <form:content>
-              <Label text="{i18n>labelUrl}" />
-              <Link text="{url}" href="{url}" target="_blank" />
               <Label text="{i18n>labelType}" />
               <Text text="{path: 'type', formatter: 'formatter.typeText'}" />
-              <Label text="{i18n>labelCondition}" />
-              <Text text="{condition}" />
+              <Label text="{i18n>labelCategory}" />
+              <Text text="{path: 'category', formatter: 'formatter.categoryText'}" />
+              <Label text="{i18n>labelSubcategory}" visible="{= !!${subcategory} }" />
+              <Text text="{subcategory}" visible="{= !!${subcategory} }" />
+              <Label text="{i18n>labelQuery}" visible="{= !!${query} }" />
+              <Text text="{query}" visible="{= !!${query} }" />
+              <Label text="{i18n>labelLocation}" visible="{= !!${location} }" />
+              <Text text="{location}" visible="{= !!${location} }" />
+              <Label text="{i18n>labelTargetPrice}" visible="{= !!${targetPrice} }" />
+              <Text text="{parts: ['targetPrice', 'currency'], formatter: 'formatter.formatMoney'}" visible="{= !!${targetPrice} }" />
+              <Label text="{i18n>labelUrl}" visible="{= !!${url} }" />
+              <Link text="{url}" href="{url}" target="_blank" visible="{= !!${url} }" />
               <Label text="{i18n>labelFrequency}" />
               <Text text="{path: 'frequency', formatter: 'formatter.frequencyText'}" />
             </form:content>
           </form:SimpleForm>
+        </VBox>
+
+        <!-- ── Tabla Comparativa de Precios (PRODUCT) ── -->
+        <VBox class="watchCard sapUiSmallMarginBottom" visible="{= ${type} === 'PRODUCT' }">
+          <Table
+            id="offersTable"
+            headerText="{i18n>detailSectionOffers}"
+            noDataText="{i18n>emptyOffers}"
+            items="{
+              path: 'offers',
+              sorter: { path: 'price', descending: false }
+            }">
+            <columns>
+              <Column><Text text="{i18n>colStore}" /></Column>
+              <Column><Text text="{i18n>colProductTitle}" /></Column>
+              <Column hAlign="End"><Text text="{i18n>colCurrentPrice}" /></Column>
+              <Column minScreenWidth="Tablet" demandPopin="true" hAlign="End"><Text text="{i18n>colOriginalPrice}" /></Column>
+              <Column minScreenWidth="Tablet" demandPopin="true" hAlign="End"><Text text="{i18n>colLowestPrice}" /></Column>
+            </columns>
+            <items>
+              <ColumnListItem vAlign="Middle">
+                <cells>
+                  <ObjectIdentifier title="{source}" />
+                  <Link text="{title}" href="{url}" target="_blank" />
+                  <ObjectNumber
+                    number="{parts: ['price', 'currency'], formatter: 'formatter.formatMoney'}"
+                    state="{= ${outlier} ? 'Warning' : 'Success' }" />
+                  <Text text="{parts: ['originalPrice', 'currency'], formatter: 'formatter.formatMoney'}" />
+                  <Text text="{parts: ['lowestPrice', 'currency'], formatter: 'formatter.formatMoney'}" />
+                </cells>
+              </ColumnListItem>
+            </items>
+          </Table>
+        </VBox>
+
+        <!-- ── Tabla de Ofertas de Empleo (JOB) ──────── -->
+        <VBox class="watchCard sapUiSmallMarginBottom" visible="{= ${type} === 'JOB' }">
+          <Table
+            id="jobsTable"
+            headerText="{i18n>detailSectionJobs}"
+            noDataText="{i18n>emptyJobs}"
+            items="{
+              path: 'jobs',
+              sorter: { path: 'firstSeenAt', descending: true }
+            }">
+            <columns>
+              <Column><Text text="{i18n>colJobTitle}" /></Column>
+              <Column><Text text="{i18n>colCompany}" /></Column>
+              <Column minScreenWidth="Tablet" demandPopin="true"><Text text="{i18n>colLocation}" /></Column>
+              <Column minScreenWidth="Tablet" demandPopin="true"><Text text="{i18n>colSalary}" /></Column>
+              <Column minScreenWidth="Desktop" demandPopin="true"><Text text="{i18n>colStore}" /></Column>
+            </columns>
+            <items>
+              <ColumnListItem vAlign="Middle">
+                <cells>
+                  <Link text="{title}" href="{url}" target="_blank" />
+                  <Text text="{company}" />
+                  <Text text="{location}" />
+                  <Text text="{= ${salary} || '—' }" />
+                  <ObjectStatus text="{source}" state="Information" />
+                </cells>
+              </ColumnListItem>
+            </items>
+          </Table>
         </VBox>
 
         <VBox class="watchCard">
@@ -74,6 +150,13 @@
     <footer>
       <OverflowToolbar>
         <ToolbarSpacer />
+        <Button
+          id="btnDetailCheckNow"
+          icon="sap-icon://synchronize"
+          text="{i18n>btnCheckNow}"
+          type="Emphasized"
+          visible="{= ${type} === 'JOB' || ${type} === 'PRODUCT' }"
+          press="onCheckNow" />
         <Button
           id="btnDetailToggle"
           icon="{path: 'status', formatter: 'formatter.toggleIcon'}"

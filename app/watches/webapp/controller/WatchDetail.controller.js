@@ -33,6 +33,28 @@ sap.ui.define([
       }
     },
 
+    onCheckNow: function () {
+      var that = this;
+      var oContext = this.getView().getBindingContext();
+      var sId = oContext.getProperty("ID");
+      var oModel = this.getOwnerComponent().getModel();
+
+      MessageToast.show(this._t("msgCheckStarted"));
+      fetch(oModel.getServiceUrl() + "Watches(" + sId + ")/WatchService.checkNow", {
+        method: "POST",
+        headers: { "Content-Type": "application/json", Accept: "application/json" },
+        body: "{}"
+      })
+        .then(function (r) { return r.json(); })
+        .then(function (oRes) {
+          oContext.refresh();
+          MessageToast.show(that._t("msgCheckDone", [oRes.found || 0, oRes.newItems || 0, oRes.notified || 0]));
+        })
+        .catch(function (oError) {
+          MessageBox.error(that._t("errCheckNow", [oError.message]));
+        });
+    },
+
     onToggleStatus: function () {
       var that = this;
       var oContext = this.getView().getBindingContext();
