@@ -14,12 +14,13 @@ module.exports = function WatchService() {
   const VALID_CATEGORIES = catalog.VALID_CATEGORIES;
   const VALID_FREQUENCIES = ['HOURLY', 'DAILY', 'WEEKLY'];
   const VALID_STATUSES = ['ACTIVE', 'PAUSED', 'TRIGGERED', 'ARCHIVED'];
+  const VALID_APP_STATUSES = ['NEW', 'SAVED', 'APPLIED', 'INTERVIEWING', 'OFFER', 'DISCARDED'];
   const URL_REGEX = /^https?:\/\/.+/i;
   const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   const CURRENCY_REGEX = /^[A-Z]{3}$/;
 
   // Entidades de persistencia (las escrituras técnicas no pasan por las restricciones del servicio)
-  const { Watches, Notifications, Offers } = cds.entities('watch');
+  const { Watches, Notifications, Offers, JobPostings } = cds.entities('watch');
 
   // ── Helpers ────────────────────────────────────────────
 
@@ -231,6 +232,47 @@ module.exports = function WatchService() {
   this.on('categories', (req) => {
     const { type } = req.data || {};
     return catalog.listCategories(type);
+  });
+
+  this.on('insights', async () => {
+    const unread = await SELECT.from(Notifications).columns('ID').where({ isRead: false });
+    const offers = await SELECT.from(Offers)
+      .columns('price', 'originalPrice', 'recommendation', 'outlier')
+      .where({ available: true });
+    const jobs = await SELECT.from(JobPostings).columns('applicationStatus', 'isSaved');
+
+    let totalSavingsCop = 0;
+    let buyNowDeals = 0;
+    for (const o of offers) {
+      if (o.outlier) continue;
+      if (o.recommendation === 'BUY_NOW') buyNowDeals++;
+      const p = Number(o.price || 0);
+      const orig = Number(o.originalPrice || 0);
+      if (orig > p && p > 0) totalSavingsCop += (orig - p);
+    }
+
+    return {
+      unreadNotifications: unread.length,
+      totalSavingsCop,
+      buyNowDeals,
+      totalJobMatches: jobs.length,
+      appliedJobs: jobs.filter((j) => ['APPLIED', 'INTERVIEWING', 'OFFER'].includes(j.applicationStatus)).length,
+      savedJobs: jobs.filter((j) => j.isSaved || j.applicationStatus === 'SAVED').length
+    };
+  });
+
+  // ── Job Application Tracker ────────────────────────────
+
+  this.before('UPDATE', 'JobPostings', (req) => {
+    const allowed = ['ID', 'applicationStatus', 'isSaved'];
+    const invalid = Object.keys(req.data).filter((k) => !allowed.includes(k));
+    if (invalid.length) {
+      req.error(400, `Solo se puede modificar 'applicationStatus' o 'isSaved' de una vacante (recibido: ${invalid.join(', ')}).`);
+    }
+    if (req.data.applicationStatus) {
+      const appErr = validateEnum(req.data.applicationStatus, VALID_APP_STATUSES, 'applicationStatus');
+      if (appErr) req.error(400, appErr);
+    }
   });
 
   // ── Notificaciones ─────────────────────────────────────
