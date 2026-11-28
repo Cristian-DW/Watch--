@@ -17,7 +17,12 @@ service WatchService @(path: '/api') @(requires: 'WatchUser') {
     action checkNow() returns RunResult;
   };
 
-  @readonly entity JobPostings    as projection on watch.JobPostings;
+  @(Capabilities: {
+    InsertRestrictions.Insertable: false,
+    UpdateRestrictions.Updatable : true,
+    DeleteRestrictions.Deletable : false
+  })
+  entity JobPostings    as projection on watch.JobPostings;
   @readonly entity Offers         as projection on watch.Offers;
   @readonly entity PriceSnapshots as projection on watch.PriceSnapshots;
   @readonly entity WatchRuns      as projection on watch.WatchRuns;
@@ -31,6 +36,9 @@ service WatchService @(path: '/api') @(requires: 'WatchUser') {
 
   /** Marca como leídas todas las notificaciones (opcionalmente de un Watch). */
   action markAllNotificationsRead(watchId : UUID) returns Integer;
+
+  /** Resumen ejecutivo de retención y ahorro para el usuario. */
+  function insights() returns InsightsSummary;
 
   /** Providers de búsqueda registrados y si están habilitados. */
   function providers() returns array of ProviderInfo;
@@ -80,5 +88,14 @@ service WatchService @(path: '/api') @(requires: 'WatchUser') {
     label         : String;
     icon          : String;
     subcategories : array of String;
+  }
+
+  type InsightsSummary {
+    unreadNotifications : Integer;
+    totalSavingsCop     : Decimal(15, 2);
+    buyNowDeals         : Integer;
+    totalJobMatches     : Integer;
+    appliedJobs         : Integer;
+    savedJobs           : Integer;
   }
 }

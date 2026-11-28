@@ -287,5 +287,46 @@ describe('Monitoreo de búsquedas', () => {
     expect(byName['serpapi-google-shopping']).toBeDefined();
   });
 
+  it('calcula Deal Score, veredicto de compra, permite gestionar postulaciones y expone insights de retención', async () => {
+    const { data: wProd } = await POST('/api/Watches', {
+      name: 'NB Deal Score', type: 'PRODUCT', query: 'New Balance 550', targetPrice: 450000
+    });
+    fakeShop.items = [
+      offer('ds1', 'Falabella', 380000, { originalPrice: 540000 }),
+      offer('ds2', 'Amazon', 520000),
+      offer('ds3', 'Éxito', 530000)
+    ];
+    await checkNow(wProd.ID);
+
+    const { data: prodDetail } = await GET(`/api/Watches(${wProd.ID})?$expand=offers($orderby=price)`);
+    expect(prodDetail.offers[0].recommendation).toBe('BUY_NOW');
+    expect(prodDetail.offers[0].dealScore).toBeGreaterThanOrEqual(80);
+    expect(prodDetail.offers[0].discountPct).toBeGreaterThanOrEqual(25);
+
+    const { data: wJob } = await POST('/api/Watches', {
+      name: 'SAP Tracker', type: 'JOB', query: 'SAP Architect BTP'
+    });
+    fakeJobs.items = [job('jt1', 'SAP BTP Solution Architect')];
+    await checkNow(wJob.ID);
+
+    const { data: jobDetail } = await GET(`/api/Watches(${wJob.ID})?$expand=jobs`);
+    const jobId = jobDetail.jobs[0].ID;
+    expect(jobDetail.jobs[0].applicationStatus).toBe('NEW');
+
+    const { status: patchStatus, data: updatedJob } = await PATCH(`/api/JobPostings(${jobId})`, {
+      applicationStatus: 'APPLIED',
+      isSaved: true
+    });
+    expect(patchStatus).toBe(200);
+    expect(updatedJob.applicationStatus).toBe('APPLIED');
+    expect(updatedJob.isSaved).toBe(true);
+
+    const { data: insights } = await GET('/api/insights()');
+    expect(insights.buyNowDeals).toBeGreaterThanOrEqual(1);
+    expect(Number(insights.totalSavingsCop)).toBeGreaterThanOrEqual(160000);
+    expect(insights.appliedJobs).toBeGreaterThanOrEqual(1);
+    expect(insights.savedJobs).toBeGreaterThanOrEqual(1);
+  });
+
 });
 

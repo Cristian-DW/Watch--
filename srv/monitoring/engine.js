@@ -49,6 +49,57 @@ function truncate(text, max) {
   return s.length > max ? `${s.slice(0, max - 1)}…` : s;
 }
 
+/**
+ * Calcula el Deal Score (0..100), el porcentaje de descuento real y el veredicto de compra.
+ * Factores:
+ *  - Descuento vs. precio original (tachado) o mediana del mercado.
+ *  - Cumplimiento o mejora respecto al targetPrice del usuario.
+ *  - Mínimo histórico (all-time low).
+ */
+function evaluateOffer({ price, originalPrice, lowestPrice, targetPrice, medianPrice, outlier }) {
+  if (outlier) {
+    return { dealScore: 0, discountPct: 0, recommendation: 'OUTLIER' };
+  }
+
+  const refPrice = (originalPrice && originalPrice > price)
+    ? originalPrice
+    : (medianPrice && medianPrice > price ? medianPrice : null);
+
+  const discountPct = refPrice ? Math.max(0, Math.round((1 - price / refPrice) * 100)) : 0;
+
+  let score = 45;
+  // 1. Aporte por descuento porcentual (hasta +30 pts)
+  score += Math.min(30, Math.round(discountPct * 1.1));
+
+  // 2. Aporte frente al precio objetivo del usuario
+  if (targetPrice && targetPrice > 0) {
+    if (price <= targetPrice) {
+      const belowPct = Math.round((1 - price / targetPrice) * 100);
+      score += 20 + Math.min(15, belowPct);
+    } else {
+      const overPct = Math.round((price / targetPrice - 1) * 100);
+      score -= Math.min(25, overPct);
+    }
+  } else if (medianPrice && price <= medianPrice) {
+    score += 10;
+  }
+
+  // 3. Aporte por mínimo histórico
+  if (!lowestPrice || price <= lowestPrice) {
+    score += 10;
+  }
+
+  const dealScore = Math.max(5, Math.min(100, score));
+  let recommendation = 'WAIT';
+  if ((targetPrice && price <= targetPrice) || dealScore >= 80 || discountPct >= 25) {
+    recommendation = 'BUY_NOW';
+  } else if (dealScore >= 62 || discountPct >= 12 || (medianPrice && price < medianPrice * 0.95)) {
+    recommendation = 'GOOD_DEAL';
+  }
+
+  return { dealScore, discountPct, recommendation };
+}
+
 // ── 1 + 2. Recolección y filtrado ────────────────────────
 
 async function collect(watch, cfg) {
@@ -204,6 +255,16 @@ async function persistOffers(watch, items, okProviders, now, cfg) {
     const itemCurrency = it.currency || currency;
     const outlier = itemCurrency === currency && isOutlier(price);
     const prev = byExt.get(externalId);
+    const originalPrice = num(it.originalPrice);
+    const lowestPrice = prev ? Math.min(num(prev.lowestPrice) ?? price, price) : price;
+    const intel = evaluateOffer({
+      price,
+      originalPrice,
+      lowestPrice,
+      targetPrice: itemCurrency === currency ? target : null,
+      medianPrice: itemCurrency === currency ? med : null,
+      outlier
+    });
     const row = {
       provider: it.provider,
       source: truncate(it.source, 255),
@@ -211,10 +272,14 @@ async function persistOffers(watch, items, okProviders, now, cfg) {
       url: truncate(it.url, 2048),
       imageUrl: it.imageUrl ? truncate(it.imageUrl, 2048) : null,
       price,
-      originalPrice: num(it.originalPrice),
+      originalPrice,
       currency: itemCurrency,
+      lowestPrice,
       available: true,
       outlier,
+      dealScore: intel.dealScore,
+      discountPct: intel.discountPct,
+      recommendation: intel.recommendation,
       lastSeenAt: now
     };
     let offerId;
@@ -222,14 +287,13 @@ async function persistOffers(watch, items, okProviders, now, cfg) {
     if (prev) {
       offerId = prev.ID;
       const prevPrice = num(prev.price);
-      row.lowestPrice = Math.min(num(prev.lowestPrice) ?? price, price);
       await UPDATE(Offers, offerId).set(row);
       if (prevPrice !== price) snapshots.push({ offer_ID: offerId, price, capturedAt: now });
     } else {
       offerId = cds.utils.uuid();
       newItems++;
       await INSERT.into(Offers).entries({
-        ID: offerId, watch_ID: watch.ID, externalId, ...row, lowestPrice: price, firstSeenAt: now
+        ID: offerId, watch_ID: watch.ID, externalId, ...row, firstSeenAt: now
       });
       snapshots.push({ offer_ID: offerId, price, capturedAt: now });
     }
@@ -404,4 +468,4 @@ async function resetResults(watchId) {
   await DELETE.from(JobPostings).where({ watch_ID: watchId });
 }
 
-module.exports = { runWatch, resetResults, SEARCH_TYPES, _internal: { collect, median, money } };
+module.exports = { runWatch, resetResults, SEARCH_TYPES, evaluateOffer, _internal: { collect, median, money } };

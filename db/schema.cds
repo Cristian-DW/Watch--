@@ -69,6 +69,10 @@ entity JobPostings : cuid {
   url         : String(2048);
   publishedAt : Timestamp;
   firstSeenAt : Timestamp;
+  /** Estado del candidato en su embudo de postulación (Job Application Tracker). */
+  applicationStatus : ApplicationStatus default 'NEW';
+  /** Favorito / guardado para revisar después. */
+  isSaved           : Boolean default false;
 }
 
 /**
@@ -94,6 +98,12 @@ entity Offers : cuid {
   available     : Boolean default true;
   /** Precio atípicamente bajo frente a la mediana (posible accesorio / error). */
   outlier       : Boolean default false;
+  /** Índice de oportunidad 0..100 calculado por el motor (descuento + brecha vs meta + mínimo histórico). */
+  dealScore     : Integer default 0;
+  /** Porcentaje de descuento real respecto al precio original o a la mediana del mercado. */
+  discountPct   : Integer default 0;
+  /** Veredicto inteligente: BUY_NOW (Compra inmediata), GOOD_DEAL (Buena oferta), WAIT (Esperar), OUTLIER. */
+  recommendation : DealVerdict default 'WAIT';
   firstSeenAt   : Timestamp;
   lastSeenAt    : Timestamp;
   history       : Composition of many PriceSnapshots on history.offer = $self;
@@ -207,4 +217,27 @@ type WatchCategory : String enum {
   // General
   OTHER;
 }
+
+/**
+ * Veredicto inteligente de compra para una oferta de producto.
+ */
+type DealVerdict : String enum {
+  BUY_NOW;
+  GOOD_DEAL;
+  WAIT;
+  OUTLIER;
+}
+
+/**
+ * Estado del candidato frente a una vacante de empleo (Job Tracker).
+ */
+type ApplicationStatus : String enum {
+  NEW;
+  SAVED;
+  APPLIED;
+  INTERVIEWING;
+  OFFER;
+  DISCARDED;
+}
+
 
